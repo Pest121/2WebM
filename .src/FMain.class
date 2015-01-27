@@ -1,0 +1,87 @@
+' Gambas class file
+
+Public FolderBrowserDialog_SelectedPath As String
+
+Public Sub Form_Open()
+
+  Me.Center
+  
+  'FolderBrowserDialog1.SelectedPath = My.Computer.FileSystem.SpecialDirectories.Desktop
+  'TextBox_OUT.Text = FolderBrowserDialog1.SelectedPath
+  
+  FolderBrowserDialog_SelectedPath = User.Home & "/Videos/"
+  TextBox_OUT.Text = FolderBrowserDialog_SelectedPath
+End
+
+Public Sub Button_IN_Click()
+  
+  'OpenFileDialog1.ShowDialog()
+  'TextBox_OUT.Text = FolderBrowserDialog1.SelectedPath & "\" & IO.Path.GetFileNameWithoutExtension(TextBox_IN.Text) & ".webm ""
+  
+  '>OpenFileDialog1_FileOk
+  'TextBox_IN.Text = OpenFileDialog1.FileName
+  
+  
+  
+  Dialog.Title = "Choose a file"
+  'Dialog.Filter = ["*.txt", "Text Files", "*", "All files"]
+  If Dialog.OpenFile() Then Return
+  TextBox_IN.Text = Dialog.Path
+  TextBox_OUT.Text = FolderBrowserDialog_SelectedPath & File.BaseName(Dialog.Path) & ".webm"
+  
+Catch
+  Message.Error(Error.Text)
+End
+
+Public Sub Button_OUT_Click()
+  
+  'Try
+  'If FolderBrowserDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
+  'If Not IO.Path.GetFileNameWithoutExtension(TextBox_IN.Text) = "" Then
+  'TextBox_OUT.Text = FolderBrowserDialog1.SelectedPath & "\" & IO.Path.GetFileNameWithoutExtension(TextBox_IN.Text) & ".webm ""
+  'Else
+  'TextBox_OUT.Text = FolderBrowserDialog1.SelectedPath
+  'End If
+  'End If
+  'Catch Ex As Exception
+  'MsgBox(Ex.Message, MsgBoxStyle.Critical)
+  'End Try
+  
+  
+  
+  Dialog.Title = "Select Directory"
+  Dialog.Path = FolderBrowserDialog_SelectedPath
+  Dialog.ShowHidden = True
+  
+  If Dialog.SelectDirectory() Then Return
+  FolderBrowserDialog_SelectedPath = Dialog.Path
+  
+  If Not File.BaseName(Dialog.Path) = "" Then
+  TextBox_OUT.Text = FolderBrowserDialog_SelectedPath & File.BaseName(Dialog.Path) & ".webm"
+  Else
+    TextBox_OUT.Text = FolderBrowserDialog_SelectedPath
+ Endif
+ 
+End
+
+Public Sub Button_Start_Click()
+  
+  If CheckBox1.Value = False Then
+    Shell "xterm -hold -e ffmpeg -i " & Quote(TextBox_IN.Text) & " -acodec libvorbis -aq " & SpinBox_AQ.Value & " -ac " & SpinBox_AC.Value & " -qmax " & SpinBox_QMAX.Value & " -threads " & SpinBox_THREADS.Value & " " & Quote(TextBox_OUT.Text)
+  Else
+    Shell "xterm -hold -e ffmpeg -i " & Quote(TextBox_IN.Text) & " -an -acodec libvorbis -qmax " & SpinBox_QMAX.Value & " -threads " & SpinBox_THREADS.Value & " " & Quote(TextBox_OUT.Text)
+  Endif
+  
+End
+
+Public Sub CheckBox1_Click()
+  
+  If CheckBox1.Value = True Then
+    SpinBox_AQ.Enabled = False
+    SpinBox_AC.Enabled = False
+  Else
+    SpinBox_AQ.Enabled = True
+    SpinBox_AC.Enabled = True
+  Endif
+  
+End
